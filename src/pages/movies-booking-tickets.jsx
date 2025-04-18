@@ -142,34 +142,23 @@ export default function MoviesBooking() {
             </p>
           )}
         </div>
-        {!isSelectingSeats ? (
-          <button
-            type="submit"
-            disabled={
-              !formik.values.name || formik.values.numSeats > remainingSeats
-            }
-            className={`w-full py-2 rounded ${
-              !formik.values.name || formik.values.numSeats > remainingSeats
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600 text-white"
-            }`}
-          >
-            Start Selecting Seats
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleConfirm}
-            disabled={selectedSeats.length !== formik.values.numSeats}
-            className={`w-full py-2 rounded ${
-              selectedSeats.length !== formik.values.numSeats
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-500 hover:bg-green-600 text-white"
-            }`}
-          >
-            Confirm Booking
-          </button>
-        )}
+        <button
+          type="submit"
+          disabled={
+            !formik.values.name ||
+            formik.values.numSeats > remainingSeats ||
+            isSelectingSeats
+          }
+          className={`w-full py-2 rounded ${
+            !formik.values.name ||
+            formik.values.numSeats > remainingSeats ||
+            isSelectingSeats
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600 text-white"
+          }`}
+        >
+          Start Selecting Seats
+        </button>
       </form>
 
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl">
@@ -244,6 +233,20 @@ export default function MoviesBooking() {
               })}
             </tbody>
           </table>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={handleConfirm}
+            disabled={selectedSeats.length !== formik.values.numSeats}
+            className={`py-2 px-8 rounded text-lg ${
+              selectedSeats.length !== formik.values.numSeats
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600 text-white"
+            }`}
+          >
+            Confirm Selection
+          </button>
         </div>
       </div>
 
