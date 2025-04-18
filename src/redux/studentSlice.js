@@ -25,13 +25,12 @@ const studentSlice = createSlice({
       localStorage.setItem("students", JSON.stringify(state.students));
     },
     updateStudentInfo: (state, action) => {
-      const updateStudent = action.payload;
-
-      const index = state.students.findIndex((student) => {
-        return updateStudent.id === student.id;
-      });
+      const updatedStudent = action.payload;
+      const index = state.students.findIndex(
+        (student) => student.id === updatedStudent.id
+      );
       if (index !== -1) {
-        state.students[index] = updateStudent;
+        state.students[index] = updatedStudent;
         localStorage.setItem("students", JSON.stringify(state.students));
       }
     },

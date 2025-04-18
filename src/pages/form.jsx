@@ -54,14 +54,16 @@ export default function Form() {
     setCurrentStudent(student);
   };
 
-  const handleSubmitEdit = (students) => {
+  const handleSubmitEdit = () => {
     if (editMode) {
-      dispatch(updateStudentInfo(students));
+      dispatch(updateStudentInfo(formik.values));
       setEditMode(false);
-      toast("Update thành công");
+      formik.resetForm();
+
+      setCurrentStudent({});
+      toast.success("Update thành công!");
     }
   };
-
   const handleDelete = (student) => {
     dispatch(removeStudentInfo(student.studentId));
     toast.success("Xóa sinh viên thành công!");
@@ -152,7 +154,7 @@ export default function Form() {
             </button>
           ) : (
             <button
-              type="button"
+              type="submit"
               onClick={() => {
                 handleSubmitEdit(formik.values);
               }}
