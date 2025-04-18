@@ -1,17 +1,24 @@
 import { useFormik } from "formik";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Input from "../components/input";
 import { useDispatch, useSelector } from "react-redux";
-import { saveStudentInfo } from "../redux/studentSlice";
+import {
+  removeStudentInfo,
+  saveStudentInfo,
+  updateStudentInfo,
+} from "../redux/studentSlice";
 import { validationSchema } from "../utils/zod.js";
 import { Link } from "react-router";
 import { path } from "../constants/path.js";
+import Search from "../components/search.jsx";
+import { toast } from "react-toastify";
 
 export default function Form() {
   const dispatch = useDispatch();
   const students = useSelector((state) => state.student.students);
-
-  console.log("students", students);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [editMode, setEditMode] = useState(false);
+  const [currentStudent, setCurrentStudent] = useState({});
 
   const formik = useFormik({
     initialValues: {
@@ -23,8 +30,42 @@ export default function Form() {
     validationSchema,
     onSubmit: (values) => {
       dispatch(saveStudentInfo(values));
+      formik.resetForm();
+      toast.success("Thêm sinh viên thành công!");
     },
   });
+
+  useEffect(() => {
+    if (editMode) {
+      formik.setValues(currentStudent);
+    }
+  }, [editMode, currentStudent]);
+
+  const filteredStudents = students.filter((student) =>
+    student.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSearch = (item) => {
+    setSearchTerm(item);
+  };
+
+  const handleEdit = (student) => {
+    setEditMode(true);
+    setCurrentStudent(student);
+  };
+
+  const handleSubmitEdit = (students) => {
+    if (editMode) {
+      dispatch(updateStudentInfo(students));
+      setEditMode(false);
+      toast("Update thành công");
+    }
+  };
+
+  const handleDelete = (student) => {
+    dispatch(removeStudentInfo(student.studentId));
+    toast.success("Xóa sinh viên thành công!");
+  };
 
   return (
     <div>
@@ -34,12 +75,17 @@ export default function Form() {
             Thông tin sinh viên
           </div>
           <div className="flex items-center gap-4 text-white">
-            <Link to={path.home}>Home</Link>
-            <Link to={path.bookMovieTickets}>Đặt vé Phim</Link>
+            <Link to={path.home} className="hover:text-red-400">
+              Home
+            </Link>
+            <Link to={path.bookMovieTickets} className="hover:text-red-400">
+              Đặt vé Phim
+            </Link>
           </div>
         </div>
       </div>
       <div className="max-w-[80rem] px-4 mx-auto py-6">
+        <Search onSearch={handleSearch} />
         <form onSubmit={formik.handleSubmit}>
           <div className="grid grid-cols-2 gap-4 text-gray-700">
             <div className="col-span-1">
@@ -97,35 +143,78 @@ export default function Form() {
               />
             </div>
           </div>
-          <button
-            type="submit"
-            className="bg-green-400 text-white px-4 py-3 rounded-sm hover:opacity-70 hover:cursor-pointer"
-          >
-            Thêm sinh viên
-          </button>
+          {!editMode ? (
+            <button
+              type="submit"
+              className="bg-green-400 text-white px-4 py-3 rounded-sm hover:opacity-70 min-w-1.5 hover:cursor-pointer"
+            >
+              Thêm sinh viên
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                handleSubmitEdit(formik.values);
+              }}
+              className="bg-blue-400 text-white min-w-1.5 hover px-4 py-3 rounded-sm hover:opacity-70 hover:cursor-pointer"
+            >
+              Chỉnh sửa
+            </button>
+          )}
         </form>
 
         <div className="mt-8 overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-[#31373d]  text-white font-bold">
-              <tr>
-                <th className="py-8  px-4">Mã SV</th>
-                <th className="py-8  px-4">Họ tên</th>
-                <th className="py-8  px-4">Số điện thoại</th>
-                <th className="py-8  px-4">Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student, index) => (
-                <tr key={index} className="border-b border-gray-300  ">
-                  <td className="py-12 px-4 ">{student.studentId}</td>
-                  <td className="py-12">{student.name}</td>
-                  <td className="py-12">{student.phoneNumber}</td>
-                  <td className="py-12">{student.email}</td>
+          {students.length ? (
+            <table className="w-full">
+              <thead className="bg-[#31373d] text-white font-bold  ">
+                <tr>
+                  <th className="py-8 px-4">Mã SV</th>
+                  <th className="py-8 px-4 ">Họ tên</th>
+                  <th className="py-8 px-4 ">Số điện thoại</th>
+                  <th className="py-8 px-4">Email</th>
+                  <th className="py-8 px-4">Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredStudents.map((student, index) => (
+                  <tr key={index} className="border-b border-gray-300">
+                    <td className="py-8 px-4 text-center truncate">
+                      {student.studentId}
+                    </td>
+                    <td className="py-8 px-4 text-center truncate">
+                      {student.name}
+                    </td>
+                    <td className="py-8 px-4 text-center truncate">
+                      {student.phoneNumber}
+                    </td>
+                    <td className="py-8 px-4 text-center truncate">
+                      {student.email}
+                    </td>
+                    <td className="py-12 flex  item-center justify-center gap-4">
+                      <button
+                        onClick={() => handleEdit(student)}
+                        className="text-blue-500 hover:text-blue-700 cursor-pointer "
+                      >
+                        Chỉnh sửa
+                      </button>
+                      <button
+                        onClick={() => handleDelete(student)}
+                        className="text-red-500 hover:text-red-700 cursor-pointer "
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="w-full text-center">
+              <div className="text-2xl capitalize font-bold">
+                ... Danh sách trống ...
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
