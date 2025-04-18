@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { useSelector, useDispatch } from "react-redux";
-import { addBooking, setBookings } from "../redux/bookingSlice";
+import { addBooking, setBookings } from "../stores/bookingSlice";
 import { formSchema } from "../utils/zod";
 
 const rows = ["A", "B", "C", "D", "E", "", "F", "G", "H", "J", "K"];

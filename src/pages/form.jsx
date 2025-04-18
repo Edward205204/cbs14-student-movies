@@ -6,7 +6,7 @@ import {
   removeStudentInfo,
   saveStudentInfo,
   updateStudentInfo,
-} from "../redux/studentSlice";
+} from "../stores/studentSlice.js";
 import { validationSchema } from "../utils/zod.js";
 import { Link } from "react-router";
 import { path } from "../constants/path.js";
@@ -26,9 +26,18 @@ export default function Form() {
       name: "",
       phoneNumber: "",
       email: "",
+      id: "",
     },
     validationSchema,
     onSubmit: (values) => {
+      if (editMode) {
+        dispatch(updateStudentInfo(formik.values));
+        setEditMode(false);
+        setCurrentStudent({});
+        formik.resetForm();
+        toast.success("Update thành công!");
+        return;
+      }
       dispatch(saveStudentInfo(values));
       formik.resetForm();
       toast.success("Thêm sinh viên thành công!");
@@ -54,16 +63,6 @@ export default function Form() {
     setCurrentStudent(student);
   };
 
-  const handleSubmitEdit = () => {
-    if (editMode) {
-      dispatch(updateStudentInfo(formik.values));
-      setEditMode(false);
-      formik.resetForm();
-
-      setCurrentStudent({});
-      toast.success("Update thành công!");
-    }
-  };
   const handleDelete = (student) => {
     dispatch(removeStudentInfo(student.studentId));
     toast.success("Xóa sinh viên thành công!");
@@ -155,9 +154,6 @@ export default function Form() {
           ) : (
             <button
               type="submit"
-              onClick={() => {
-                handleSubmitEdit(formik.values);
-              }}
               className="bg-blue-400 text-white min-w-1.5 hover px-4 py-3 rounded-sm hover:opacity-70 hover:cursor-pointer"
             >
               Chỉnh sửa
