@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import { path } from "./constants/path";
 import Form from "./pages/form.jsx";
 import Home from "./pages/home.jsx";
-import MoviesBookingTicket from "./pages/movies-booking-tickets.jsx";
+import MoviesBooking from "./pages/movies-booking-tickets.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +15,6 @@ export const router = createBrowserRouter([
   },
   {
     path: path.bookMovieTickets,
-    Component: MoviesBookingTicket,
+    Component: MoviesBooking,
   },
 ]);

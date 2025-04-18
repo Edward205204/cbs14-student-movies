@@ -12,3 +12,11 @@ export const validationSchema = toFormikValidationSchema(
     email: z.string().email("Email không hợp lệ"),
   })
 );
+
+export const formSchema = z.object({
+  name: z.string().min(1, "Vui lòng nhập tên"),
+  numSeats: z
+    .number({ invalid_type_error: "Số lượng phải là số" })
+    .int("Phải là số nguyên")
+    .min(1, "Ít nhất 1 ghế"),
+});
