@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { useSelector, useDispatch } from "react-redux";
-import { addBooking, setBookings } from "../stores/bookingSlice";
+import { addBooking, setBookings } from "../stores/booking-slice";
 import { formSchema } from "../utils/zod";
+import Input from "../components/input";
+import SeatMap from "../components/seat-map";
+import BookingHistory from "../components/booking-history";
 
-const rows = ["A", "B", "C", "D", "E", "", "F", "G", "H", "J", "K"];
-const cols = [1, 2, 3, 4, 5, 0, 6, 7, 8, 9, 10, 11, 12];
-const TOTAL_SEATS = rows.filter((r) => r).length * cols.filter((c) => c).length;
+const TOTAL_SEATS = 120; //12 cột và 10 hàng
 
 export default function MoviesBooking() {
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -104,44 +105,30 @@ export default function MoviesBooking() {
         <div className="m-4 text-yellow-400">
           fill the required details below and select your seats
         </div>
-        <div className="mb-4">
-          <label htmlFor="name" className="block mb-1 font-medium">
-            Name<span className="text-red-500">*</span>
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            onChange={formik.handleChange}
-            value={formik.values.name}
-            className="w-full border border-gray-300 rounded p-2"
-            disabled={isSelectingSeats}
-          />
-          {formik.touched.name && formik.errors.name && (
-            <p className="text-red-500 text-sm mt-1">{formik.errors.name}</p>
-          )}
-        </div>
-        <div className="mb-4">
-          <label htmlFor="numSeats" className="block mb-1 font-medium">
-            Number of seats<span className="text-red-500">*</span>
-          </label>
-          <input
-            id="numSeats"
-            name="numSeats"
-            type="number"
-            onChange={formik.handleChange}
-            value={formik.values.numSeats}
-            min={1}
-            max={remainingSeats}
-            className="w-full border border-gray-300 rounded p-2"
-            disabled={isSelectingSeats}
-          />
-          {formik.touched.numSeats && formik.errors.numSeats && (
-            <p className="text-red-500 text-sm mt-1">
-              {formik.errors.numSeats}
-            </p>
-          )}
-        </div>
+
+        <Input
+          id="name"
+          name="name"
+          label="Name"
+          onChange={formik.handleChange}
+          value={formik.values.name}
+          error={formik.touched.name && formik.errors.name}
+          disabled={isSelectingSeats}
+        />
+
+        <Input
+          id="numSeats"
+          name="numSeats"
+          type="number"
+          label="Number of seats"
+          onChange={formik.handleChange}
+          value={formik.values.numSeats}
+          error={formik.touched.numSeats && formik.errors.numSeats}
+          min={1}
+          max={remainingSeats}
+          disabled={isSelectingSeats}
+          className="mt-4"
+        />
         <button
           type="submit"
           disabled={
@@ -170,70 +157,14 @@ export default function MoviesBooking() {
             </span>
           )}
         </h2>
-        <div className="overflow-x-auto">
-          <table className="table-auto mx-auto">
-            <thead>
-              <tr>
-                <th></th>
-                {cols.map((c) =>
-                  c === 0 ? (
-                    <th key="col-gap" className="w-8"></th>
-                  ) : (
-                    <th key={c} className="px-2">
-                      {c}
-                    </th>
-                  )
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => {
-                if (row === "") {
-                  return <tr key="row-gap" className="h-8"></tr>;
-                }
-                return (
-                  <tr key={row}>
-                    <td className="pr-4">{row}</td>
-                    {cols.map((c) => {
-                      if (c === 0)
-                        return <td key={`${row}-gap`} className="w-8"></td>;
 
-                      const seat = `${row}${c}`;
-                      const isReserved = reservedSeats.includes(seat);
-                      const isSelected = selectedSeats.includes(seat);
-                      return (
-                        <td key={`${row}-${c}`} className="px-2 py-1">
-                          <button
-                            disabled={
-                              isReserved ||
-                              !isSelectingSeats ||
-                              (selectedSeats.length >= formik.values.numSeats &&
-                                !isSelected)
-                            }
-                            onClick={() => toggleSeat(seat)}
-                            className={`w-8 h-8 rounded transition
-                            ${
-                              isReserved
-                                ? "bg-red-500"
-                                : isSelected
-                                ? "bg-green-500"
-                                : "bg-gray-200"
-                            }
-                            ${
-                              isReserved || !isSelectingSeats
-                                ? "cursor-not-allowed"
-                                : "cursor-pointer"
-                            }`}
-                          />
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <SeatMap
+          selectedSeats={selectedSeats}
+          reservedSeats={reservedSeats}
+          isSelectingSeats={isSelectingSeats}
+          maxSeats={formik.values.numSeats}
+          onSeatClick={toggleSeat}
+        />
 
         <div className="mt-6 flex justify-center">
           <button
@@ -251,31 +182,7 @@ export default function MoviesBooking() {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl mt-8">
-        <h2 className="text-xl font-semibold mb-4">Booking History</h2>
-        {bookings.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="px-4 py-2 text-left">Name</th>
-                  <th className="px-4 py-2 text-left">Number of Seats</th>
-                  <th className="px-4 py-2 text-left">Seats</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((booking, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="px-4 py-2">{booking.name}</td>
-                    <td className="px-4 py-2">{booking.numSeats}</td>
-                    <td className="px-4 py-2">{booking.seats.join(", ")}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p>No booking history</p>
-        )}
+        <BookingHistory bookings={bookings} />
       </div>
     </div>
   );

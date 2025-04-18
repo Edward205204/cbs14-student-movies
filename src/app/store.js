@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
-import studentReducer from "../stores/studentSlice";
-import bookingReducer from "../stores/bookingSlice";
+import studentReducer from "../stores/student-slice";
+import bookingReducer from "../stores/booking-slice";
 
 export const store = configureStore({
   reducer: {

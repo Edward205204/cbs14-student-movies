@@ -6,7 +6,7 @@ import {
   removeStudentInfo,
   saveStudentInfo,
   updateStudentInfo,
-} from "../stores/studentSlice.js";
+} from "../stores/student-slice.js";
 import { validationSchema } from "../utils/zod.js";
 import { Link } from "react-router";
 import { path } from "../constants/path.js";

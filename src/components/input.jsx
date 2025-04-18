@@ -1,30 +1,27 @@
 export default function Input({
-  id = "student-id",
-  name = "student-id",
+  id,
+  name,
   type = "text",
   onChange,
-  className,
   value,
-  classNameInput = "p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm",
-  classNameError = "mt-1 text-red-600 min-h-[1.25rem] text-sm",
+  className = "",
   error,
-  errorMessage,
   ...rest
 }) {
   return (
-    <div className={"relative " + className}>
+    <div className={`relative ${className}`}>
       <input
         type={type}
         id={id}
-        autoComplete="off"
-        className={classNameInput}
         name={name}
         value={value}
         onChange={onChange}
+        className={`p-2 w-full border border-gray-300 rounded focus:outline-none focus:border-blue-500 ${
+          error ? "border-red-500" : ""
+        }`}
         {...rest}
       />
-
-      <div className={classNameError}>{error || errorMessage}</div>
+      {error && <div className="mt-1 text-red-500 text-sm">{error}</div>}
     </div>
   );
 }
